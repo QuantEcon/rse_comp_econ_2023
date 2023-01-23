@@ -23,6 +23,8 @@ discussed. The target audience is graduate students at the start of masters or
 PhD programs, advanced undergraduates who want to boost their computing
 skills, and policy makers at Australian policy institutions.
 
+Topics will include simulation, vectorization, JIT compilers, and parallelization.
+
 ### Resources
 
 
