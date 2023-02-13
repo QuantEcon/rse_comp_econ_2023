@@ -20,8 +20,16 @@ We discuss [Monte Carlo
 methods](https://en.wikipedia.org/wiki/Monte_Carlo_method) for computing
 expectations with applications in finance.
 
+Our main application will be pricing a European option.
+
 We will show that Monte Carlo is particularly helpful when the distribution of
 interest has no neat analytical form.
+
+We will also touch on some high performance computing topics, including 
+
+* just-in-time compilers 
+* GPUs and 
+* parallelization.
 
 We begin with the following standard imports:
 
@@ -29,7 +37,6 @@ We begin with the following standard imports:
 import numpy as np
 import matplotlib.pyplot as plt
 ```
-
 
 ## An Introduction to Monte Carlo
 
@@ -59,7 +66,7 @@ low.
 
 (High expected returns and low risk.)
 
-Suppose that, after analyzing the data, we have decided that $S$ well
+Suppose that, after analyzing the data, we have decided that $S$ is well
 represented by a lognormal distribution with parameters $\mu, \sigma$ .
 
 * $S$ has the same distribution as $\exp(\mu + \sigma Z)$ where $Z$ is standard normal.
@@ -117,7 +124,9 @@ $n$ is large.
 Here's example code, with assumed values for $p$ and each $\mu_i$ and $\sigma_i$.
 
 ```{code-cell} ipython3
-n = 1_000_000
+%%time
+
+n = 10_000_000
 p = 0.5
 mu_1, mu_2, mu_3 = 0.2, 0.8, 0.4
 sigma_1, sigma_2, sigma_3 = 0.1, 0.05, 0.2
@@ -130,6 +139,19 @@ S.mean()
 
 To get a sense of how good the estimate is you can try rerunning several
 times while varying $n$.
+
++++
+
+**Exercise**
+
+Discuss: Some people say Python is a slow language but this is pretty fast.
+
+Why is it fast?
+
+How does it work?
+
++++
+
 
 
 
@@ -253,7 +275,6 @@ can be calculated.
 
 +++
 
-
 **Exercise**
 
 Suppose we know that $S_n \sim LN(\mu, \sigma)$ and $\mu$ and $\sigma$ are known.
@@ -283,7 +304,6 @@ return_draws = np.maximum(S - K, 0)
 P = β**n * np.mean(return_draws) 
 print(f"The Monte Carlo option price is {P:3f}")
 ```
-
 
 ## Pricing Via a Dynamic Model
 
@@ -384,9 +404,6 @@ n = 10
 β = 0.95
 ```
 
-
-+++
-
 **Exercise**
 
 
@@ -440,8 +457,6 @@ for ax, transform, title in zip(axes, transforms, titles):
 fig.tight_layout()
 plt.show()
 ```
-
-+++
 
 **Exercise**
 
@@ -555,9 +570,6 @@ compute_call_price_parallel()
 compute_call_price_parallel()
 ```
 
-
-
-
 ## Pricing a European Call Option Using JAX
 
 Previously we computed the value of a European call option via Monte Carlo using Numba-based routines.
@@ -570,7 +582,6 @@ Let's compare how this looks, and how fast it runs, when we implement using [Goo
 
 Try to shift the whole operation to the GPU using JAX and test your speed gain.
 
-
 ```{code-cell} ipython3
 # Put your code here
 ```
@@ -579,7 +590,6 @@ Try to shift the whole operation to the GPU using JAX and test your speed gain.
 for _ in range(12):
     print('solution below')
 ```
-
 
 ```{code-cell} ipython3
 !nvidia-smi
@@ -624,4 +634,3 @@ compute_call_price_jax().block_until_ready()
 %%time 
 compute_call_price_jax().block_until_ready()
 ```
-
