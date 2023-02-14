@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.13.8
+    jupytext_version: 1.14.1
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -36,6 +36,8 @@ We begin with the following standard imports:
 ```{code-cell} ipython3
 import numpy as np
 import matplotlib.pyplot as plt
+from numba import njit
+from numpy.random import randn
 ```
 
 ## An Introduction to Monte Carlo
@@ -121,39 +123,112 @@ But fortunately there's an easy way to do this, at least approximately:
 By the law of large numbers, this average will be close to the true mean when
 $n$ is large.
 
-Here's example code, with assumed values for $p$ and each $\mu_i$ and $\sigma_i$.
+We use the following values for $p$ and each $\mu_i$ and $\sigma_i$.
+
+```{code-cell} ipython3
+n = 1_000_000
+p = 0.5
+μ_1, μ_2, μ_3 = 0.2, 0.8, 0.4
+σ_1, σ_2, σ_3 = 0.1, 0.05, 0.2
+```
+
+#### A Pure Python Routine
 
 ```{code-cell} ipython3
 %%time
 
-n = 10_000_000
-p = 0.5
-mu_1, mu_2, mu_3 = 0.2, 0.8, 0.4
-sigma_1, sigma_2, sigma_3 = 0.1, 0.05, 0.2
-X1 = np.exp(mu_1 + sigma_1 * np.random.randn(n))
-X2 = np.exp(mu_2 + sigma_2 * np.random.randn(n))
-X3 = np.exp(mu_3 + sigma_3 * np.random.randn(n))
-S = (X1 + X2 + X3)**p
+S = 0.0
+for i in range(n):
+    X_1 = np.exp(μ_1 + σ_1 * randn())
+    X_2 = np.exp(μ_2 + σ_2 * randn())
+    X_3 = np.exp(μ_3 + σ_3 * randn())
+    S += (X_1 + X_2 + X_3)**p
+S / n
+```
+
+#### A Vectorized Routine
+
+```{code-cell} ipython3
+%%time
+
+X_1 = np.exp(μ_1 + σ_1 * randn(n))
+X_2 = np.exp(μ_2 + σ_2 * randn(n))
+X_3 = np.exp(μ_3 + σ_3 * randn(n))
+S = (X_1 + X_2 + X_3)**p
 S.mean()
 ```
 
-To get a sense of how good the estimate is you can try rerunning several
-times while varying $n$.
+#### Using Numba's JIT Compiler
 
-+++
+```{code-cell} ipython3
+@njit
+def compute_mean():
+    S = 0.0
+    for i in range(n):
+        X_1 = np.exp(μ_1 + σ_1 * randn())
+        X_2 = np.exp(μ_2 + σ_2 * randn())
+        X_3 = np.exp(μ_3 + σ_3 * randn())
+        S += (X_1 + X_2 + X_3)**p
+    return(S / n)
+```
 
-**Exercise**
+```{code-cell} ipython3
+%%time
 
-Discuss: Some people say Python is a slow language but this is pretty fast.
+compute_mean()
+```
 
-Why is it fast?
+```{code-cell} ipython3
+%%time
 
-How does it work?
+compute_mean()
+```
 
-+++
+#### Using Google JAX
 
+```{code-cell} ipython3
+import jax
+import jax.numpy as jnp
+```
 
+```{code-cell} ipython3
+!nvidia-smi
+```
 
+```{code-cell} ipython3
+:tags: []
+
+def compute_mean_jax():
+    key = jax.random.PRNGKey(1)
+    Z = jax.random.normal(key, (3, n))
+    X_1 = jnp.exp(μ_1 + σ_1 * Z[0,:])
+    X_2 = jnp.exp(μ_2 + σ_2 * Z[1,:])
+    X_3 = jnp.exp(μ_3 + σ_3 * Z[2,:])
+    S = (X_1 + X_2 + X_3)**p
+    return(S.mean())
+```
+
+```{code-cell} ipython3
+%%time
+
+compute_mean_jax()
+```
+
+```{code-cell} ipython3
+compute_mean_jax_jitted = jax.jit(compute_mean_jax)
+```
+
+```{code-cell} ipython3
+%%time
+
+compute_mean_jax_jitted()
+```
+
+```{code-cell} ipython3
+%%time
+
+compute_mean_jax_jitted()
+```
 
 ## Pricing a European Call Option under Risk Neutrality
 
@@ -175,7 +250,7 @@ For example, suppose someone promises to pay you
 Let's denote the payoff as $G$, so that $G$ is a random variable with
 
 $$
-    \mathbb P\{G = 1,000,000\} = \mathbb P\{G = 0\} = \frac{1}{2}
+    \mathbb P\left\{G = 10^6 \right\} = \mathbb P\{G = 0\} = \frac{1}{2}
 $$
 
 Suppose in addition that you can sell this promise to anyone who wants to
@@ -193,8 +268,12 @@ This is because the risk-neutral price is just the expected payoff of the
 asset, which is
 
 $$
-    \mathbb E G = \frac{1}{2} 1,000,000 + \frac{1}{2} 0 = 500,000
+    \mathbb E G = \frac{1}{2} \times 10^6 + \frac{1}{2} \times 0 = 5 \times 10^5
 $$
+
++++
+
+### A Comment on Risk
 
 As suggested by the name, the risk-neutral price ignores risk.
 
@@ -214,6 +293,7 @@ these promises.
 Nonetheless, the risk-neutral price is an important benchmark, which economists
 and financial market participants routinely try to calculate.
 
++++
 
 ### Discounting
 
@@ -239,10 +319,10 @@ Thus, if $G$ is realized in $n$ periods, then the risk-neutral price is
 
 $$
     P = \beta^n \mathbb E G 
-      = \beta^n 500,000
+      = \beta^n 5 \times 10^5
 $$
 
-
++++
 
 ### European Call Options
 
@@ -286,7 +366,29 @@ $$ \mathbb E \max\{ S_n - K, 0 \}
     \frac{1}{M} \sum_{m=1}^M \max \{S_n^m - K, 0 \}
     $$
     
-Set `M = 10_000_000`
+
++++
+
+Use the following parameter values:
+
+```{code-cell} ipython3
+μ = 1.0
+σ = 0.1
+```
+
+```{code-cell} ipython3
+:tags: []
+
+K = 1
+n = 10
+β = 0.95
+```
+
+Set the simulation size to
+
+```{code-cell} ipython3
+M = 10_000_000
+```
 
 ```{code-cell} ipython3
 # Put your code here
@@ -298,7 +400,7 @@ for _ in range(12):
 ```
 
 ```{code-cell} ipython3
-M = 10_000_000
+
 S = np.exp(μ + σ * np.random.randn(M))
 return_draws = np.maximum(S - K, 0)
 P = β**n * np.mean(return_draws) 
@@ -391,7 +493,6 @@ For the dynamic model, we adopt the following parameter values.
 ν  = 0.001
 S0 = 10
 h0 = 0
-n  = 20
 ```
 
 (Here `S0` is $S_0$ and `h0` is $h_0$.)
@@ -399,6 +500,8 @@ n  = 20
 For the option we use the following defaults.
 
 ```{code-cell} ipython3
+:tags: []
+
 K = 100
 n = 10
 β = 0.95
