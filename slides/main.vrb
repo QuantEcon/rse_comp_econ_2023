@@ -1,0 +1,12 @@
+\frametitle{But what about scientific computing?}
+
+    \navy{Requirements}
+
+    \begin{itemize}
+        \item \underline{\green{Productive}} --- easy to read, write, debug, explore
+            \vspace{0.4em}
+            \vspace{0.4em}
+            \vspace{0.4em}
+        \item \underline{\green{Fast}} computations
+    \end{itemize}
+
