@@ -215,6 +215,17 @@
 \section{Introduction}
 
 
+%\begin{frame}
+    %\frametitle{Acknowledgement of Country}
+
+    %We acknowledge and celebrate the First Australians on whose traditional
+    %lands we meet. 
+
+    %We pay our respect to the elders past and present.
+
+%\end{frame}
+
+
 
 \begin{frame}
     %\frametitle{Introduction}
@@ -225,6 +236,8 @@
         \item \green{Thomas J.\ Sargent (NYU)}
             \vspace{0.5em}
         \item \green{John Stachurski (RSE)}
+            \vspace{0.5em}
+        \item \green{VC?}
             \vspace{0.5em}
     \end{itemize}
 
@@ -243,17 +256,6 @@
 \end{frame}
 
 
-\begin{frame}
-    \frametitle{Acknowledgement of Country}
-
-    We acknowledge and celebrate the First Australians on whose traditional
-    lands we meet. 
-
-    We pay our respect to the elders past and present.
-
-\end{frame}
-
-
 
 \begin{frame}
 
@@ -263,7 +265,7 @@
     \begin{itemize}
         \item econ/computer/maths/stats literate
         \vspace{0.3em}
-        \item some basic familiarity with computers
+        \item programming not required
     \end{itemize}
 
     \vspace{0.3em}
@@ -292,11 +294,27 @@
 
 
 
-\section{Overview}
+\section{Three Trends}
+
+\begin{frame}
+    \frametitle{Trends}
+
+    What are the major trends in scientific computing?
+
+    \vspace{0.5em}
+    \vspace{0.5em}
+
+    \begin{itemize}
+        \item what's driving them?
+        \vspace{0.5em}
+        \item how can we benefit?
+    \end{itemize}
+\end{frame}
+
 
 
 \begin{frame}
-    \frametitle{Background: Language and Platforms}
+    \frametitle{Trend 1: Proprietary $\to$ Open Source}
     
     \blue{Proprietary} 
     %
@@ -309,7 +327,7 @@
 
     \vspace{0.5em}
     \vspace{0.5em}
-    \blue{Open Source} 
+    \blue{Open Source / Open Standard} 
     
     \begin{itemize}
         \item Python
@@ -324,9 +342,22 @@
 
 \end{frame}
 
+\begin{frame}
+
+    Popularity:
+
+    \begin{figure}
+       \begin{center}
+        \scalebox{1.8}{\includegraphics{python_vs_rest.png}}
+       \end{center}
+    \end{figure}
+
+\end{frame}
+
+
 
 \begin{frame}
-    \frametitle{Background --- Language Types}
+    \frametitle{Trend 2: Low Level $\to$ High Level}
     
     \blue{Low level} 
     
@@ -342,7 +373,32 @@
 
     \begin{itemize}
         \item Python
-        \item Ruby
+        \item Javascript
+        \item PHP
+    \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+    
+    \blue{Low level languages} give us control 
+
+    \begin{itemize}
+        \item control CPU
+        \item control memory
+    \end{itemize}
+
+    \vspace{0.5em}
+    \vspace{0.5em}
+    \vspace{0.5em}
+
+    \blue{High level languages} give us 
+    %
+    \begin{itemize}
+        \item abstraction
+        \item automation
+        \item flexibility, etc.
     \end{itemize}
 
 \end{frame}
@@ -352,8 +408,6 @@
 
 \begin{frame}[fragile]
 
-    Low level languages give us fine grained control 
-    
     \Eg \brown{1 + 1} in assembly
 
     {\small
@@ -371,35 +425,44 @@ popq    %rbp
     \end{minted}
     }
 
-
-
 \end{frame}
-
-
-\begin{frame}
-    
-    \blue{High level languages} give us abstraction, automation, etc.
-
-\end{frame}
-
 
 
 \begin{frame}[fragile]
 
-    \Eg Reading from a file in Python
-    
-    \begin{minted}{python}
-    data_file = open("data.txt")
-    for line in data_file:
-        print(line.capitalize()) 
-    data_file.close()
+    \Eg \brown{1 + 1} in C/C++
+
+    {\small
+    \begin{minted}{c}
+#include <stdio.h>
+int main() {
+    int sum = 1 + 1;
+    printf("1 + 1 = %d\n", sum);
+    return 0;
+}   
     \end{minted}
+    }
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+    \Eg \brown{1 + 1} in Python
+
+    {\small
+    \begin{minted}{python}
+sum = 1 + 1
+print("1 + 1 = ", sum)
+    \end{minted}
+    }
 
 \end{frame}
 
 
+
 \begin{frame}
-    \frametitle{Trade-Offs}
+
+    Trade-Offs:
 
     \begin{figure}
        \begin{center}
@@ -412,9 +475,14 @@ popq    %rbp
 
 
 \begin{frame}[fragile]
-    \frametitle{But what about scientific computing?}
+
+    \emp{But what about scientific computing?}
     
-    \navy{Requirements}
+            \vspace{0.4em}
+            \vspace{0.4em}
+            \vspace{0.4em}
+
+    Requirements:
 
     \begin{itemize}
         \item \underline{\green{Productive}} --- easy to read, write, debug, explore
@@ -430,7 +498,8 @@ popq    %rbp
 
 
 \begin{frame}
-    \frametitle{Trade-Offs}
+
+    Trade-offs:
 
     \begin{figure}
        \begin{center}
@@ -442,7 +511,8 @@ popq    %rbp
 
 
 \begin{frame}
-    \frametitle{Trade-Offs}
+
+    Trade-offs:
 
     \begin{figure}
        \begin{center}
@@ -454,7 +524,8 @@ popq    %rbp
 
 
 \begin{frame}
-    \frametitle{Trade-Offs}
+
+    Trade-offs:
 
     \begin{figure}
        \begin{center}
@@ -466,11 +537,29 @@ popq    %rbp
 
 
 
+\begin{frame}
 
-\section{Parallelization}
+    \Eg What platforms/languages does OpenAI use?
+
+        \vspace{0.5em}
+    In order (according to  \href{https://github.com/openai}{repo stats}):
+
+    \begin{enumerate}
+        \item Python
+        \item C/C++
+        \item Javascript
+        \item Jupyter notebooks
+        \item Ruby
+    \end{enumerate}
+
+\end{frame}
+
+
+
+%\section{Parallelization}
 
 \begin{frame}
-    \frametitle{Parallelization}
+    \frametitle{Trend 3: Parallelization}
 
     CPU frequency (clock speed) growth is slowing
 
@@ -524,11 +613,11 @@ popq    %rbp
     
     While scientific computing environments best support parallelization?
 
-    Parallelization requires different algorithms
-
+        \vspace{0.5em}
+        \vspace{0.5em}
     %
     \begin{itemize}
-        \item all have some support
+        \item Most have some support
         \vspace{0.5em}
         \item but which make it easy to harness its power?
     \end{itemize}
@@ -590,8 +679,6 @@ popq    %rbp
     Cons:
     
     \begin{itemize}
-        \item Some stability issues
-            \vspace{0.5em}
         \item Low rates of investment in some important libraries
     \end{itemize}
 
@@ -610,37 +697,13 @@ popq    %rbp
             \vspace{0.5em}
         \item Heavily supported by big players
             \vspace{0.5em}
-        \item Open source
+        \item Strong support for parallel computing
             \vspace{0.5em}
         \item Huge demand for tech-savvy Python programmers
     \end{itemize}
 
 
-            \vspace{0.5em}
-            \vspace{0.5em}
-    \Eg \href{https://github.com/openai}{Largest share} of OpenAI (ChatGPT) code  
-
 \end{frame}
-
-
-
-\begin{frame}
-    
-
-    Popularity:
-
-    \begin{figure}
-       \begin{center}
-        \scalebox{1.8}{\includegraphics{python_vs_rest.png}}
-       \end{center}
-    \end{figure}
-
-
-\end{frame}
-
-
-
-
 
 
 
@@ -651,38 +714,58 @@ popq    %rbp
 
 
 
-
-
 \begin{frame}
-    \frametitle{Downloads / Installation / Troubleshooting}
+    \frametitle{Accessing Python}
 
-    \green{Install Python + Scientific Libs (Optional!)}
+    Option 1: \green{Via a service (remote option)}
+
+    \begin{itemize}
+        \item \url{https://colab.research.google.com}
+    \end{itemize}
+
+    \vspace{1em}
+
+    Option 2: \green{Local install (Python + scientific libs)}
     
     \begin{itemize}
         \item Install Anaconda from {\footnotesize \url{https://www.anaconda.com/}}
         \vspace{1em}
             \begin{itemize}
                 \item Select latest version 
-                \item For your OS
-                \item Say ``yes'' at prompts
             \end{itemize}
         \vspace{1em}
         \item Not plain vanilla Python
     \end{itemize}
 
 
-    \vspace{1em}
-
-    \green{Remote options}
-
-    \begin{itemize}
-        \item \url{https://colab.research.google.com}
-        \item \url{https://www.pythonanywhere.com/}
-    \end{itemize}
 
 
 \end{frame}
 
+
+
+\begin{frame}
+    \frametitle{How to Interact with Python?}
+
+    Many options:
+
+    \begin{itemize}
+        \item \emp{write} with VS Code / Emacs / Vim
+            \vspace{0.5em}
+        \item \emp{run} with base Python, IPython, etc.
+    \end{itemize}
+
+            \vspace{0.5em}
+            \vspace{0.5em}
+            \vspace{0.5em}
+        Or do both with \emp{Jupyter notebooks / Jupyter lab}
+
+            \vspace{0.5em}
+    \begin{itemize}
+        \item for simplicity we focus only on the last option
+    \end{itemize}
+
+\end{frame}
 
 
 \begin{frame}
@@ -726,6 +809,34 @@ popq    %rbp
     \end{itemize}
 
 \end{frame}
+
+
+
+\begin{frame}
+    \frametitle{RA Work}
+
+    We and other academics are looking for talented RAs
+
+            \vspace{0.5em}
+    Ideal skills
+
+    \begin{itemize}
+        \item git and GitHub
+            \vspace{0.5em}
+        \item Python
+            \vspace{0.5em}
+        \item scientific libraries
+            \vspace{0.5em}
+        \item maths
+            \vspace{0.5em}
+        \item stats
+            \vspace{0.5em}
+        \item economics
+    \end{itemize}
+
+\end{frame}
+
+
 
 
 
