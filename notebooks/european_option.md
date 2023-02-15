@@ -31,13 +31,17 @@ We will also touch on some high performance computing topics, including
 * GPUs and 
 * parallelization.
 
-We begin with the following standard imports:
+We begin with the following imports:
 
 ```{code-cell} ipython3
 import numpy as np
 import matplotlib.pyplot as plt
-from numba import njit
+import numba
 from numpy.random import randn
+```
+
+```{code-cell} ipython3
+sqrt(2)
 ```
 
 ## An Introduction to Monte Carlo
@@ -126,13 +130,22 @@ $n$ is large.
 We use the following values for $p$ and each $\mu_i$ and $\sigma_i$.
 
 ```{code-cell} ipython3
-n = 1_000_000
+n = 10_000_000
 p = 0.5
 μ_1, μ_2, μ_3 = 0.2, 0.8, 0.4
 σ_1, σ_2, σ_3 = 0.1, 0.05, 0.2
 ```
 
-#### A Pure Python Routine
+#### A Routine using Loops in Python
+
++++
+
+Here's a routine using native Python loops to calculate the desired mean
+
+$$
+    \frac{1}{n} \sum_{i=1}^n S_i
+    \approx \mathbb E S
+$$
 
 ```{code-cell} ipython3
 %%time
@@ -146,23 +159,10 @@ for i in range(n):
 S / n
 ```
 
-#### A Vectorized Routine
+Let's construct a function that contains these operations:
 
 ```{code-cell} ipython3
-%%time
-
-X_1 = np.exp(μ_1 + σ_1 * randn(n))
-X_2 = np.exp(μ_2 + σ_2 * randn(n))
-X_3 = np.exp(μ_3 + σ_3 * randn(n))
-S = (X_1 + X_2 + X_3)**p
-S.mean()
-```
-
-#### Using Numba's JIT Compiler
-
-```{code-cell} ipython3
-@njit
-def compute_mean():
+def compute_mean(n=10_000_000):
     S = 0.0
     for i in range(n):
         X_1 = np.exp(μ_1 + σ_1 * randn())
@@ -173,18 +173,56 @@ def compute_mean():
 ```
 
 ```{code-cell} ipython3
-%%time
-
 compute_mean()
+```
+
+#### Using Numba's JIT Compiler
+
+```{code-cell} ipython3
+:tags: []
+
+compute_mean_numba = numba.jit(compute_mean)
 ```
 
 ```{code-cell} ipython3
 %%time
 
-compute_mean()
+compute_mean_numba()
+```
+
+```{code-cell} ipython3
+%%time
+
+compute_mean_numba()
+```
+
+#### A Vectorized Routine
+
++++
+
+Now we implement a vectorized routine using traditional NumPy array processing.
+
+```{code-cell} ipython3
+
+def compute_mean_vectorized(n=10_000_000):
+    X_1 = np.exp(μ_1 + σ_1 * randn(n))
+    X_2 = np.exp(μ_2 + σ_2 * randn(n))
+    X_3 = np.exp(μ_3 + σ_3 * randn(n))
+    S = (X_1 + X_2 + X_3)**p
+    return(S.mean())
+```
+
+```{code-cell} ipython3
+%%time
+
+compute_mean_vectorized()
 ```
 
 #### Using Google JAX
+
++++
+
+Finally, let's try to shift this to the GPU (if you have one) and parallelize it effectively.
 
 ```{code-cell} ipython3
 import jax
@@ -198,7 +236,7 @@ import jax.numpy as jnp
 ```{code-cell} ipython3
 :tags: []
 
-def compute_mean_jax():
+def compute_mean_jax(n=10_000_000):
     key = jax.random.PRNGKey(1)
     Z = jax.random.normal(key, (3, n))
     X_1 = jnp.exp(μ_1 + σ_1 * Z[0,:])
@@ -242,12 +280,16 @@ Let's first discuss risk neutrality and then introduce European options.
 When we use risk-neutral pricing, we determine the price of a given asset
 according to its expected payoff.
 
+$$
+\text{cost } = \text{ expected benefit}
+$$
+
 For example, suppose someone promises to pay you
 
 - 1,000,000 dollars if "heads" is the outcome of a fair coin flip
 - 0 dollars if "tails" is the outcome
 
-Let's denote the payoff as $G$, so that $G$ is a random variable with
+Let's denote the payoff as $G$, so that 
 
 $$
     \mathbb P\left\{G = 10^6 \right\} = \mathbb P\{G = 0\} = \frac{1}{2}
@@ -365,7 +407,6 @@ $$ \mathbb E \max\{ S_n - K, 0 \}
     \approx
     \frac{1}{M} \sum_{m=1}^M \max \{S_n^m - K, 0 \}
     $$
-    
 
 +++
 
@@ -400,7 +441,6 @@ for _ in range(12):
 ```
 
 ```{code-cell} ipython3
-
 S = np.exp(μ + σ * np.random.randn(M))
 return_draws = np.maximum(S - K, 0)
 P = β**n * np.mean(return_draws) 
